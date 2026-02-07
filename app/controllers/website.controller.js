@@ -245,7 +245,8 @@ exports.createWebsite = async (req, res) => {
         const outputPath = path.resolve("./app/images/size_pc/resized", baseName + ".png");
 
         await sharp(file.buffer)
-          .resize(1280, Math.round(1280 / (16 / 9)), {
+          // .resize(1280, Math.round(1280 / (16 / 9)), {
+          .resize(1920, Math.round(1920 / (16 / 9)), {
             fit: "cover",
             position: "top",
           })
