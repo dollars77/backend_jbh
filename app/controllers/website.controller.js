@@ -246,7 +246,8 @@ exports.createWebsite = async (req, res) => {
 
         await sharp(file.buffer)
           // .resize(1280, Math.round(1280 / (16 / 9)), {
-          .resize(1920, Math.round(1920 / (16 / 9)), {
+          // .resize(1920, Math.round(1920 / (16 / 9)), {
+          .resize(1920, Math.round(1920 / 3), { 
             fit: "cover",
             position: "top",
           })
@@ -305,7 +306,8 @@ exports.createWebsite = async (req, res) => {
         const outputPath = path.resolve("./app/images/size_mobile/resized", baseName + ".png");
 
         await sharp(file.buffer)
-          .resize(1280, Math.round(1280 / (9 / 16)), {
+          // .resize(1280, Math.round(1280 / (9 / 16)), {
+            .resize(1920, Math.round(1920 / 3), { 
             fit: "cover",
             position: "top",
           })
