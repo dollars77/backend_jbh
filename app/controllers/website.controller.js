@@ -246,7 +246,7 @@ exports.createWebsite = async (req, res) => {
 
         await sharp(file.buffer)
 
-           .resize(1280, Math.round(1280 / (16 / 9)), {
+          .resize(1280, Math.round(1280 / (16 / 9)), {
             fit: "cover",
             position: "top",
           })
@@ -304,12 +304,20 @@ exports.createWebsite = async (req, res) => {
         const baseName = Date.now();       // ตั้งชื่อไฟล์ใหม่
         const outputPath = path.resolve("./app/images/size_mobile/resized", baseName + ".png");
 
+        // await sharp(file.buffer)
+        //   .resize(800, Math.round(800 / (10 / 16)), {
+        //     fit: "cover",
+        //     position: "top",
+        //   })
+        //   .png({ quality: 80 }) // แปลงเป็น png เสมอ
+        //   .toFile(outputPath);
         await sharp(file.buffer)
-          .resize(1280, Math.round(1280 / (9 / 16)), {
-            fit: "cover",
-            position: "top",
+          .resize(800, Math.round(800 / (10 / 16)), {
+            fit: "contain",
+            position: "top", // จริงๆ contain ไม่ค่อยมีผลกับ position เท่า cover แต่ใส่ไว้ได้
+            background: { r: 0, g: 0, b: 0, alpha: 0 }, // โปร่งใส
           })
-          .png({ quality: 80 }) // แปลงเป็น png เสมอ
+          .png({ quality: 80 })
           .toFile(outputPath);
 
 
@@ -412,7 +420,7 @@ exports.updateWebsite = async (req, res) => {
 
         await sharp(file.buffer)
           .resize(1280, Math.round(1280 / (16 / 9)), {
-          // .resize(1920, Math.round(1920 / (16 / 9)), {
+            // .resize(1920, Math.round(1920 / (16 / 9)), {
             //  .resize(1920, Math.round(1920 / 3), { 
             fit: "cover",
             position: "top",
@@ -476,12 +484,21 @@ exports.updateWebsite = async (req, res) => {
         const baseName = Date.now();       // ตั้งชื่อไฟล์ใหม่
         const outputPath = path.resolve("./app/images/size_mobile/resized", baseName + ".png");
         var imagemobiletxt = null;
-        await sharp(file.buffer)
-          .resize(720, Math.round(720 / (9 / 16)), {
-            fit: "cover",
-            position: "top",
+        // await sharp(file.buffer)
+        //   .resize(800, Math.round(800 / (10 / 16)), {
+        //     fit: "cover",
+        //     position: "top",
+        //   })
+        //   .png({ quality: 80 }) // แปลงเป็น png เสมอ
+        //   .toFile(outputPath);
+
+            await sharp(file.buffer)
+          .resize(800, Math.round(800 / (10 / 16)), {
+            fit: "contain",
+            position: "top", // จริงๆ contain ไม่ค่อยมีผลกับ position เท่า cover แต่ใส่ไว้ได้
+            background: { r: 0, g: 0, b: 0, alpha: 0 }, // โปร่งใส
           })
-          .png({ quality: 80 }) // แปลงเป็น png เสมอ
+          .png({ quality: 80 })
           .toFile(outputPath);
 
 
