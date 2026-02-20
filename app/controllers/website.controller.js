@@ -381,10 +381,15 @@ exports.updateWebsite = async (req, res) => {
     const category_arr = JSON.parse(req.body.categoryId);
     const category_arrOld = JSON.parse(req.body.categoryIdOld);
     if (req.body.checkCategory === "false") {
-      await category_website
+      try {
+              await category_website
         .destroy({
           where: { websiteId: req.body.id },
         })
+
+      } catch (error) {
+        
+      }
 
       await category_arr.map(async (categoryId) => {
         let maxValue = 0;
