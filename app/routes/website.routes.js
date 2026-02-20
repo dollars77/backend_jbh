@@ -8,6 +8,7 @@ module.exports = (app) => {
 
     router.get('/allWebsite', authJwt.verifyTokenHeader, website.getAllWebsite);
     router.get('/allWebsiteInCategory/:id',authJwt.verifyTokenHeader,website.getAllWebsiteInCategory)
+    router.get('/allWebsiteInCategoryAdmin/:id',authJwt.verifyTokenHeader,website.getAllWebsiteInCategoryAdmin)
     router.get('/allWebsiteOrderall',authJwt.verifyTokenHeader,website.getAllWebsiteOrder_All)
     router.post('/addWebsite', authJwt.verifyTokenHeader, website.uploadimage, website.createWebsite);
     router.put('/updateWebsite', authJwt.verifyTokenHeader, website.uploadimage, website.updateWebsite);

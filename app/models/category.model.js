@@ -12,6 +12,10 @@ module.exports = (sequelize, Sequelize) => {
         namecategory: {
             type: Sequelize.STRING
         },
+        namecategoryMM: {
+            type: Sequelize.STRING,
+            defaultValue: "",
+        },
         order: {
             type: Sequelize.INTEGER,
             defaultValue: 0,

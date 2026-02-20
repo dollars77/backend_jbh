@@ -32,6 +32,8 @@ db.weburl = require("../models/weburl.model.js")(sequelize, Sequelize);
 db.category = require("../models/category.model.js")(sequelize, Sequelize);
 db.website = require("../models/website.model.js")(sequelize, Sequelize);
 
+db.category_website = require("../models/category_website.model.js")(sequelize, Sequelize);
+
 db.role.belongsToMany(db.user, {
   through: "user_roles",
   foreignKey: "roleId",
@@ -42,8 +44,28 @@ db.user.belongsToMany(db.role, {
   foreignKey: "userId",
   otherKey: "roleId"
 });
-db.category.hasMany(db.website,{foreignKey:{name:'categoryId',allowNull:false},onDelete:'RESTRICT'});
-db.website.belongsTo(db.category,{foreignKey:{name:'categoryId',allowNull:false},onDelete:'RESTRICT'});
+db.category.hasMany(db.category_website,{foreignKey:{name:'categoryId',allowNull:false},onDelete:'RESTRICT'});
+db.category_website.belongsTo(db.category,{foreignKey:{name:'categoryId',allowNull:false},onDelete:'RESTRICT'});
+
+db.website.hasMany(db.category_website,{foreignKey:{name:'websiteId',allowNull:false},onDelete:'RESTRICT'});
+db.category_website.belongsTo(db.website,{foreignKey:{name:'websiteId',allowNull:false},onDelete:'RESTRICT'});
+
+db.website.belongsToMany(db.category,{
+  through:{
+  model:db.category_website,
+  as: "category",
+  unique: false,
+  // onDelete:'restrict'
+  },foreignKey:"websiteId",
+})
+db.category.belongsToMany(db.website,{
+  through:{
+  model:db.category_website,
+  as: "website",
+  unique: false,
+  // onDelete:'restrict'
+  },foreignKey:"categoryId",
+})
 
 
 

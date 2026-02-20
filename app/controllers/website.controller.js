@@ -1,6 +1,7 @@
 const db = require("../models");
 const category = db.category;
 const website = db.website;
+const category_website = db.category_website;
 
 const multer = require("multer");
 const path = require("path");
@@ -8,50 +9,6 @@ const fs = require("fs");
 const sharp = require("sharp");
 const { Op } = require("sequelize");
 const axios = require('axios');
-
-// const fileStorage = multer.diskStorage({
-//   destination: (req, file, cb) => {
-//     if (file.fieldname === "imagepc") {
-//       cb(null, "./app/images/size_pc");
-//     } else if (file.fieldname === "imagemobile") {
-//       cb(null, "./app/images/size_mobile");
-//     }
-//   },
-//   filename: (req, file, cb) => {
-//     cb(null, Date.now() + path.extname(file.originalname));
-//   },
-// });
-// const fileFilter = (req, file, cb) => {
-//   if (
-//     file.mimetype === "image/png" ||
-//     file.mimetype === "image/jpg" ||
-//     file.mimetype === "image/jpeg" ||
-//     file.mimetype === "image/webp"
-//   ) {
-//     cb(null, true);
-//   } else {
-//     cb(null, false); 
-//   }
-// };
-
-// var upload_test = multer({
-//   storage: fileStorage,
-//   limits: {
-//     fileSize: "1048576",
-//   },
-//   fileFilter: fileFilter,
-// }).fields([
-//   {
-//     name: "imagepc",
-//     maxCount: 1,
-//   },
-//   {
-//     name: "imagemobile",
-//     maxCount: 1,
-//   }
-
-// ]);
-// exports.uploadimage = upload_test;
 
 const fileStorage = multer.memoryStorage();
 
@@ -109,14 +66,60 @@ exports.getAllWebsiteInCategory = async (req, res) => {
       });
     });
 };
-exports.getAllWebsiteOrder_All = async (req, res) => {
-  website
+exports.getAllWebsiteInCategoryAdmin = async (req, res) => {
+  category_website
     .findAll({
       include: [
         {
-          model: category,
-          as: "category",
-          // attributes: [],
+          model: website,
+          as: "website",
+          include: [
+            {
+              model: category_website,
+              as: "category_websites",
+            },]
+        },
+      ], where: { categoryId: req.params.id }, order: [["order", "DESC"]],
+    },
+
+    )
+    .then((data) => {
+      const result = data.map((row) => {
+        const r = row.toJSON();
+
+        return {
+          ...r.website,
+          order: r.order,
+          category_websiteId: r.id,
+          categoryId: r.categoryId,
+
+        };
+      });
+
+      res.send(result);
+    })
+    .catch((err) => {
+      res.status(500).send({
+        status: 500,
+        message: err.message || "Some error occurred while retrieving User.",
+      });
+    });
+};
+exports.getAllWebsiteOrder_All = async (req, res) => {
+  await website
+    .findAll({
+      include: [
+        {
+          model: category_website,
+          as: "category_websites",
+          include: [
+            {
+              model: category,
+              as: "category",
+
+            },
+
+          ],
         },
       ],
       order: [["order_all", "DESC"]],
@@ -124,7 +127,10 @@ exports.getAllWebsiteOrder_All = async (req, res) => {
 
     )
     .then((data) => {
+      console.log(JSON.stringify(data));
       res.send(data);
+
+
     })
     .catch((err) => {
       res.status(500).send({
@@ -177,71 +183,11 @@ exports.createWebsite = async (req, res) => {
       var imagepctxt = null;
       var imagemobiletxt = null;
 
-      // try {
-
-
-      //   const targetWidth = 1280;
-      //   const targetHeight = Math.round(targetWidth / (16 / 9)); // คำนวณความสูงให้เป็น 16:9
-
-      //   let sharpInstance = sharp(req.files.imagepc[0].path)
-      //     .resize(targetWidth, targetHeight, {
-      //       fit: 'cover', // ครอปรูปให้พอดีกับขนาดที่กำหนด
-      //       position: 'top' // ครอปจากด้านบน
-      //     });
-
-      //   if (path.extname(req.files.imagepc[0].originalname).toLowerCase() === '.webp') {
-      //     sharpInstance = sharpInstance.webp();
-
-      //   } else {
-      //     sharpInstance = sharpInstance.png({ quality: 80 });
-      //     await sharpInstance.toFile(
-      //       path.resolve(
-      //         req.files.imagepc[0].destination,
-      //         "resized",
-      //         req.files.imagepc[0].filename
-      //       )
-      //     );
-      //     fs.unlinkSync(req.files.imagepc[0].path);
-      //   }
-      // } catch (err) { console.error('Error processing image:', err); }
 
       try {
-        // const targetWidth = 1280;
-        // const targetHeight = Math.round(targetWidth / (16 / 9)); // 16:9 = 1280x720
 
-        // const ext = path.extname(req.files.imagepc[0].originalname).toLowerCase();
-        // const baseName = path.parse(req.files.imagepc[0].filename).name;
-
-        // // ตั้ง output เป็น .png เสมอ หรือถ้าอยากให้ webp เป็น webp ต่อไปก็ได้
-        // const outputExt = ext === ".webp" ? ".webp" : ".png";
-        // const outputPath = path.resolve(
-        //   req.files.imagepc[0].destination,
-        //   "resized",
-        //   baseName + outputExt
-        // );
-
-        // let sharpInstance = sharp(req.files.imagepc[0].path)
-        //   .resize(targetWidth, targetHeight, {
-        //     fit: "cover",  // ครอปภาพให้พอดี
-        //     position: "top",
-        //   });
-
-        // if (ext === ".webp") {
-        //   // กรณีเป็น webp → resize + save ออกมาเป็น webp ได้เลย
-        //   sharpInstance = sharpInstance.webp({ quality: 80 });
-        // } else {
-        //   // ไฟล์อื่น ๆ → แปลงเป็น png
-        //   sharpInstance = sharpInstance.png({ quality: 80 });
-        // }
-
-        // // save file ออกมา
-        // await sharpInstance.toFile(outputPath);
-
-        // // ลบไฟล์ต้นฉบับ
-        // fs.unlinkSync(req.files.imagepc[0].path);
-
-        const file = req.files.imagepc[0]; // multer เก็บ buffer ที่นี่
-        const baseName = Date.now();       // ตั้งชื่อไฟล์ใหม่
+        const file = req.files.imagepc[0];
+        const baseName = Date.now();
         const outputPath = path.resolve("./app/images/size_pc/resized", baseName + ".png");
 
         await sharp(file.buffer)
@@ -265,52 +211,11 @@ exports.createWebsite = async (req, res) => {
         console.error("Error processing image:", err);
       }
 
-
-      //************************************************************ */
-
-
-
-
-      //************************************************************ */
-
-      // try {
-      //   // กำหนดความกว้างที่ต้องการ (สามารถปรับได้ตามต้องการ)
-      //   const targetWidth = 720; // หรือ 1280, 1600 ตามต้องการ
-      //   const targetHeight = Math.round(targetWidth / (9 / 16)); // คำนวณความสูงให้เป็น 16:9
-
-      //   let sharpInstance = sharp(req.files.imagemobile[0].path)
-      //     .resize(targetWidth, targetHeight, {
-      //       fit: 'cover', // ครอปรูปให้พอดีกับขนาดที่กำหนด
-      //       position: 'top' // ครอปจากตรงกลาง
-      //     });
-
-      //   if (path.extname(req.files.imagemobile[0].originalname).toLowerCase() === '.webp') {
-      //     sharpInstance = sharpInstance.webp();
-
-      //   } else {
-      //     sharpInstance = sharpInstance.png({ quality: 80 });
-      //     await sharpInstance.toFile(
-      //       path.resolve(
-      //         req.files.imagemobile[0].destination,
-      //         "resized",
-      //         req.files.imagemobile[0].filename
-      //       )
-      //     );
-      //     fs.unlinkSync(req.files.imagemobile[0].path);
-      //   }
-      // } catch (err) { console.error('Error processing image:', err); }
       try {
         const file = req.files.imagemobile[0]; // multer เก็บ buffer ที่นี่
         const baseName = Date.now();       // ตั้งชื่อไฟล์ใหม่
         const outputPath = path.resolve("./app/images/size_mobile/resized", baseName + ".png");
 
-        // await sharp(file.buffer)
-        //   .resize(800, Math.round(800 / (10 / 16)), {
-        //     fit: "cover",
-        //     position: "top",
-        //   })
-        //   .png({ quality: 80 }) // แปลงเป็น png เสมอ
-        //   .toFile(outputPath);
         await sharp(file.buffer)
           .resize(800, Math.round(800 / (10 / 16)), {
             fit: "contain",
@@ -348,7 +253,7 @@ exports.createWebsite = async (req, res) => {
           websiteurl: req.body.websiteurl,
           description: req.body.description,
           price: 0,
-          categoryId: req.body.categoryId,
+          categoryId: null,
           status: req.body.status,
           cover: req.body.cover,
           order: countwebsite + 1,
@@ -358,9 +263,30 @@ exports.createWebsite = async (req, res) => {
         };
       } catch (err) { }
 
+
+
       return await website
         .create(data_website)
         .then(async (data) => {
+
+          const category_arr = JSON.parse(req.body.categoryId);
+          await category_arr.map(async (categoryId) => {
+            let maxValue = 0;
+            try {
+              maxValue = await category_website.max('order', {
+                where: { categoryId: categoryId }
+              });
+            } catch (error) {
+            }
+            const maxValueCheck = maxValue ? maxValue + 1 : 1;
+            await category_website
+              .create({
+                order: maxValueCheck,
+                categoryId: categoryId,
+                websiteId: data.id
+              })
+          })
+
           res.status(200).send({ status: true, id: data.id });
         })
         .catch((err) => {
@@ -377,41 +303,6 @@ exports.updateWebsite = async (req, res) => {
 
   try {
     if (req.body.checkimagepc === "true") {
-      // try {
-      //   let sharpInstance = sharp(req.files.imagepc[0].path);
-
-      //   if (path.extname(req.files.imagepc[0].originalname).toLowerCase() === '.webp') {
-      //     sharpInstance = sharpInstance.webp();
-
-      //   } else {
-      //     sharpInstance = sharpInstance.png({ quality: 80 });
-      //     await sharpInstance.toFile(
-      //       path.resolve(
-      //         req.files.imagepc[0].destination,
-      //         "resized",
-      //         req.files.imagepc[0].filename
-      //       )
-      //     );
-      //     fs.unlinkSync(req.files.imagepc[0].path);
-      //   }
-      // } catch (err) { }
-
-      // var imagepctxt = null;
-
-      // try {
-      //   if (path.extname(req.files.imagepc[0].originalname).toLowerCase() === '.webp') {
-      //     imagepctxt =
-      //       "app\\images\\size_pc\\" +
-      //       req.files.imagepc[0].filename;
-      //   } else {
-      //     imagepctxt =
-      //       "app\\images\\size_pc\\resized\\" +
-      //       req.files.imagepc[0].filename;
-      //   }
-
-      // } catch (err) {
-      //   imagepctxt = null;
-      // }
       try {
         const file = req.files.imagepc[0]; // multer เก็บ buffer ที่นี่
         const baseName = Date.now();       // ตั้งชื่อไฟล์ใหม่
@@ -444,55 +335,14 @@ exports.updateWebsite = async (req, res) => {
     }
 
     if (req.body.checkimagemobile === "true") {
-      // try {
-      //   let sharpInstance = sharp(req.files.imagemobile[0].path);
 
-      //   if (path.extname(req.files.imagemobile[0].originalname).toLowerCase() === '.webp') {
-      //     sharpInstance = sharpInstance.webp();
-
-      //   } else {
-      //     sharpInstance = sharpInstance.png({ quality: 80 });
-      //     await sharpInstance.toFile(
-      //       path.resolve(
-      //         req.files.imagemobile[0].destination,
-      //         "resized",
-      //         req.files.imagemobile[0].filename
-      //       )
-      //     );
-      //     fs.unlinkSync(req.files.imagemobile[0].path);
-      //   }
-      // } catch (err) { }
-
-      // var imagemobiletxt = null;
-
-      // try {
-      //   if (path.extname(req.files.imagemobile[0].originalname).toLowerCase() === '.webp') {
-      //     imagemobiletxt =
-      //       "app\\images\\size_mobile\\" +
-      //       req.files.imagemobile[0].filename;
-      //   } else {
-      //     imagemobiletxt =
-      //       "app\\images\\size_mobile\\resized\\" +
-      //       req.files.imagemobile[0].filename;
-      //   }
-
-      // } catch (err) {
-      //   imagemobiletxt = null;
-      // }
       try {
         const file = req.files.imagemobile[0]; // multer เก็บ buffer ที่นี่
         const baseName = Date.now();       // ตั้งชื่อไฟล์ใหม่
         const outputPath = path.resolve("./app/images/size_mobile/resized", baseName + ".png");
         var imagemobiletxt = null;
-        // await sharp(file.buffer)
-        //   .resize(800, Math.round(800 / (10 / 16)), {
-        //     fit: "cover",
-        //     position: "top",
-        //   })
-        //   .png({ quality: 80 }) // แปลงเป็น png เสมอ
-        //   .toFile(outputPath);
 
-            await sharp(file.buffer)
+        await sharp(file.buffer)
           .resize(800, Math.round(800 / (10 / 16)), {
             fit: "contain",
             position: "top", // จริงๆ contain ไม่ค่อยมีผลกับ position เท่า cover แต่ใส่ไว้ได้
@@ -528,6 +378,31 @@ exports.updateWebsite = async (req, res) => {
     };
 
     await website.update(data_website, { where: { id: req.body.id } });
+    const category_arr = JSON.parse(req.body.categoryId);
+    const category_arrOld = JSON.parse(req.body.categoryIdOld);
+    if (req.body.checkCategory === "false") {
+      await category_website
+        .destroy({
+          where: { websiteId: req.body.id },
+        })
+
+      await category_arr.map(async (categoryId) => {
+        let maxValue = 0;
+        try {
+          maxValue = await category_website.max('order', {
+            where: { categoryId: categoryId }
+          });
+        } catch (error) {
+        }
+        const maxValueCheck = maxValue ? maxValue + 1 : 1;
+        await category_website
+          .create({
+            order: maxValueCheck,
+            categoryId: categoryId,
+            websiteId: req.body.id
+          })
+      })
+    }
 
 
     res.status(200).send({
@@ -545,10 +420,10 @@ exports.updateOrderWebsite = async (req, res) => {
   const website_data = req.body;
   try {
     await website_data.map(async (data) =>
-      await website.update(
+      await category_website.update(
         { order: data.order },
         {
-          where: { id: data.id },
+          where: { id: data.category_websiteId },
 
         }
       )
@@ -585,24 +460,27 @@ exports.updateOrderWebsiteAll = async (req, res) => {
 };
 
 
-exports.deleteWebsite = (req, res) => {
+exports.deleteWebsite = async (req, res) => {
   const id = req.params.id;
+  try {
+    await category_website
+      .destroy({
+        where: { websiteId: id },
+      })
 
-  website
-    .destroy({
-      where: { id: id },
-    })
-    .then(() => {
-      res.status(200).send({
-        message: "website was deleted successfully!",
-      });
-    })
-    .catch((err) => {
-      res.status(500).send({
-        status: 500,
-        message: "Could not delete website",
-      });
+    await website
+      .destroy({
+        where: { id: id },
+      })
+    res.status(200).send({
+      message: "website was deleted successfully!",
     });
+  } catch (error) {
+    res.status(500).send({
+      status: 500,
+      message: "Could not delete website",
+    });
+  }
 };
 
 exports.deleteImagePc = async (req, res) => {

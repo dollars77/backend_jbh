@@ -124,6 +124,7 @@ exports.createCategory = async (req, res) => {
         data_category = {
           iconcategory: iconcategorytxt,
           namecategory: req.body.namecategory,
+          namecategoryMM: req.body.namecategoryMM,
           status: req.body.status,
           order: countcategory + 1,
 
@@ -189,6 +190,7 @@ exports.updateCategory = async (req, res) => {
 
     const data_category = {
       namecategory: req.body.namecategory,
+      namecategoryMM: req.body.namecategoryMM,
       status: req.body.status,
     };
 
@@ -282,7 +284,14 @@ exports.getOneCategory = async (req, res) => {
 
   category
     .findOne(
-      { where: { id: req.params.id } })
+      {
+        // include: [
+        //   {
+        //     model: db.category_website,
+        //     as: "category_websites",
+        //   }], 
+    where: { id: req.params.id }
+      })
     .then((data) => {
       res.send(data);
     })
