@@ -91,11 +91,12 @@ const Category = db.category;
 
 
 
-db.sequelize.sync();
+// db.sequelize.sync();
 
 db.sequelize.sync({ force: true }).then(() => {
   console.log('Drop and Resync Db');
   initial();
+  initial2();
   initial4();
 });
 
@@ -140,6 +141,16 @@ function initial() {
   Role.create({
     id: 2,
     name: "admin"
+  });
+}
+function initial2() {
+  User.create({
+
+    username: "jbh-admin",
+    name: "super admin",
+    password: "JBH2026design",
+    roles: ["mod"]
+
   });
 }
 
