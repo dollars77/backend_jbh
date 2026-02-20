@@ -374,12 +374,13 @@ exports.updateWebsite = async (req, res) => {
       price: req.body.price,
       status: req.body.status,
       cover: req.body.cover,
-      categoryId: req.body.categoryId,
+      categoryId: null,
     };
 
     await website.update(data_website, { where: { id: req.body.id } });
     const category_arr = JSON.parse(req.body.categoryId);
-    const category_arrOld = JSON.parse(req.body.categoryIdOld);
+
+    // const category_arrOld = JSON.parse(req.body.categoryIdOld);
     if (req.body.checkCategory === "false") {
       try {
               await category_website
